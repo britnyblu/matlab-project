@@ -17,7 +17,7 @@ for i=chroms
     windows_ends=cur_chrom_G1(1:200:end,1);
     
     %loop through S reads to fill out window counts
-    if length(windows_ends)<3
+    if length(windows_ends)<3 %if too short skip this
        continue 
     end
     max=windows_ends(1,1);
@@ -41,7 +41,7 @@ for i=chroms
     windows_ends(:,3)=windows_ends(:,2)/200;
     windows_ends(:,4)=(windows_ends(:,3)-mean(windows_ends(:,3),1))/std(windows_ends(:,3),1);
 
-    %for each intergap - csaps to smooth
+    %for each intergap region - interpolate and smooth
     cur_gaps=gaps(ismember(gaps.Var2,value),:);
     all_smooth_locs=[];
     all_smooth_zscores=[];
@@ -58,20 +58,21 @@ for i=chroms
         if length(cur_locs)<min_len
            continue 
         end
-        F_func = csaps(cur_locs,cur_zscores,smooth);
-        %rounding=log10(interp*1000);
-        %interp_locs=roundn(inter_gap_start,rounding):interp*1000:round(inter_gap_end,rounding);
+        F_func = csaps(cur_locs,cur_zscores,smooth); %interpolate and smooth
         interp_locs=round(inter_gap_start/interp)*interp:interp*1000:round(inter_gap_end/interp)*interp;
         interp_locs=transpose(interp_locs);
         smooth_zscores = fnval(interp_locs,F_func);
         all_smooth_locs=[all_smooth_locs; interp_locs];
         all_smooth_zscores=[all_smooth_zscores; smooth_zscores];
     end
+    %organize table of chromosome data and save with appropriate chromosome
+    %name
     chro_table=array2table([all_smooth_locs all_smooth_zscores],'VariableNames',{'loc','RT'});
     chro_table.chr(:)=value;
     data_table=[data_table; chro_table];
     
 end
+%organize table and remove outliers
 data_table = data_table(:,{'chr' 'loc' 'RT'});
 data_table=rmoutliers(data_table,'mean','DataVariables','RT');
 
