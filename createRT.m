@@ -67,6 +67,9 @@ for i=chroms
     end
     %organize table of chromosome data and save with appropriate chromosome
     %name
+    if length(all_smooth_locs)==0
+        continue
+    end
     chro_table=array2table([all_smooth_locs all_smooth_zscores],'VariableNames',{'loc','RT'});
     chro_table.chr(:)=value;
     data_table=[data_table; chro_table];

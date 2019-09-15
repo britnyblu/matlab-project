@@ -31,7 +31,7 @@ for i=3:length(G1_files) %for each file
    %helper function
    table=createRT(G1_cur_file,S_cur_file,interp,smooth,min_len,chroms,gap,cur_dir);
    rt_col=3;
-   table.Properties.VariableNames{rt_col}=strcat('RT_',sample_name); %rename the column with the sample name
+   table.Properties.VariableNames{rt_col}=strcat('RT_',strrep(sample_name,'.bed','')); %rename the column with the sample name
    
    %only add the data if it worked, less than 5 means not enough data in
    %the results to include this sample
